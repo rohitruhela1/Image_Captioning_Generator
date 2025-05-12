@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Image Captioning</title>
+    <title>AI Image Captioning</title>
     <link
       href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
       rel="stylesheet"
@@ -21,11 +21,26 @@
         background-blend-mode: overlay;
         background-size: cover;
       }
+
+      .fade-up {
+        animation: fadeUp 0.8s ease-out both;
+      }
+
+      @keyframes fadeUp {
+        0% {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
     </style>
   </head>
 
-  <body class="min-h-screen flex items-center justify-center p-4 sm:p-6">
-    <!-- Loading Overlay -->
+  <body class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 space-y-10">
+    
     <div
       id="loadingOverlay"
       class="fixed inset-0 bg-white bg-opacity-80 flex items-center justify-center z-50 hidden"
@@ -36,7 +51,7 @@
     </div>
 
     <div
-      class="bg-white shadow-2xl rounded-3xl w-full max-w-4xl overflow-hidden border border-indigo-100"
+      class="bg-white shadow-2xl rounded-3xl w-full max-w-4xl overflow-hidden border border-indigo-100 fade-up"
     >
       <div
         class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-center py-6 px-4 sm:py-8 sm:px-6"
@@ -44,7 +59,7 @@
         <h1
           class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight"
         >
-          🧠 AI Image Captioning
+          Image Captioning App
         </h1>
         <p class="mt-2 sm:mt-3 text-lg sm:text-xl font-light">
           Let deep learning describe what it sees
@@ -102,13 +117,69 @@
       </div>
     </div>
 
+    <!-- 📘 Model Theory Section -->
+    <div
+      class="bg-white rounded-3xl shadow-2xl max-w-4xl w-full px-8 py-10 fade-up border border-indigo-100"
+    >
+      <section class="max-w-4xl mx-auto px-4 sm:px-6 py-12">
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-indigo-700 mb-6 border-b-4 border-purple-300 pb-2">
+         How the Image Captioning Model Works
+      </h2>
+
+      <div class="space-y-6 text-lg leading-relaxed">
+        <p>
+          This image captioning project is based on a deep learning architecture that blends visual understanding with language generation. The core idea is to interpret the contents of an image and then generate a natural-sounding sentence that describes it.
+        </p>
+
+        <h3 class="text-2xl font-semibold text-purple-700 mt-8">1. Dataset & Feature Extraction</h3>
+        <p>
+          The system begins with a dataset that contains images paired with human-written captions. Each image is processed using a pre-trained convolutional neural network (CNN), typically VGG16 , to extract high-level features. These features serve as a numeric representation of the image's content.
+        </p>
+
+        <h3 class="text-2xl font-semibold text-purple-700 mt-8">2. Text Tokenization</h3>
+        <p>
+          The captions from the dataset are broken into tokens (individual words) and converted into sequences of integers. A tokenizer maps words to numbers so they can be fed into the model.
+        </p>
+
+        <h3 class="text-2xl font-semibold text-purple-700 mt-8">3. Model Architecture</h3>
+        <p>
+          The model uses a two-branch architecture:
+        </p>
+        <ul class="list-disc list-inside ml-4">
+          <li><strong>Image Branch:</strong> This processes the image features using dense layers to reduce dimensionality.</li>
+          <li><strong>Caption Branch:</strong> This processes the input caption sequence using embedding and LSTM layers to learn language patterns.</li>
+        </ul>
+        <p>
+          These two branches are merged and passed through additional LSTM and dense layers to predict the next word in the caption, one step at a time.
+        </p>
+
+        <h3 class="text-2xl font-semibold text-purple-700 mt-8">4. Training the Model</h3>
+        <p>
+          During training, the model is given an image and a partial caption and learns to predict the next word. Over time, it learns the correct sequence of words for each image, using teacher forcing and categorical loss functions to improve accuracy.
+        </p>
+
+        <h3 class="text-2xl font-semibold text-purple-700 mt-8">5. Caption Generation</h3>
+        <p>
+          When generating a caption, the model starts with a special start token and generates one word at a time, feeding each word back into the LSTM until it generates an end token or reaches a maximum length.
+        </p>
+
+        <h3 class="text-2xl font-semibold text-purple-700 mt-8">6. Limitations</h3>
+        <p>
+          This notebook uses a relatively small dataset and lightweight architecture for faster training and lower memory usage. While it can generate reasonable captions, it might not handle complex scenes as well as large-scale models like those used by big tech companies.
+        </p>
+
+        <p class="mt-8 text-indigo-800 italic">
+          In summary, the model combines visual feature extraction with sequence prediction to produce simple, coherent image descriptions — a beautiful example of merging computer vision with natural language processing.
+        </p>
+      </div>
+    </section>
+    </div>
+
     <script>
       const imageInput = document.getElementById("imageInput");
-      const uploadPreview = document.getElementById("uploadPreview");
       const previewImage = document.getElementById("previewImage");
       const captionResult = document.getElementById("captionResult");
       const captionText = document.getElementById("captionText");
-      const uploadText = document.getElementById("uploadText");
       const loadingOverlay = document.getElementById("loadingOverlay");
 
       imageInput.addEventListener("change", (e) => {
@@ -118,7 +189,6 @@
           reader.onload = function (event) {
             previewImage.src = event.target.result;
             previewImage.classList.remove("hidden");
-            // uploadText.classList.add("hidden");
           };
           reader.readAsDataURL(file);
         }
@@ -135,7 +205,6 @@
           const formData = new FormData();
           formData.append("image", file);
 
-          // Show loading spinner
           loadingOverlay.classList.remove("hidden");
 
           try {
